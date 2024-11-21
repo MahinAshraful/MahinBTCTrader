@@ -1,9 +1,8 @@
 import base64
 import datetime
 import json
-import time
-import uuid
 import os
+import uuid
 from typing import Any, Dict, Optional
 import requests
 from nacl.signing import SigningKey
@@ -141,17 +140,13 @@ def test_trading_bot():
         holdings = trader.get_doge_holdings()
         print(f"Holdings: {json.dumps(holdings, indent=2)}")
         
-        # Uncomment the following to test trading functionality
+        # Example of trading functionality (commented out for safety)
         """
-        # Test 4: Place small buy order
-        print("\nTesting buy order:")
+        # Buy DOGE
         buy_order = trader.place_market_buy(1.0)  # Buy 1 DOGE
         print(f"Buy Order: {json.dumps(buy_order, indent=2)}")
         
-        # Wait for order to process
-        time.sleep(5)
-        
-        # Test 5: Check order status
+        # Check order status
         if buy_order and 'id' in buy_order:
             order_status = trader.get_order_status(buy_order['id'])
             print(f"Order Status: {json.dumps(order_status, indent=2)}")
