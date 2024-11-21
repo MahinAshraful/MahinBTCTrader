@@ -44,13 +44,9 @@ class DogeTrader:
         result = response.json()
         
         if result and 'results' in result and result['results']:
-            bid_price = result['results'][0].get('bid_price', 'N/A')
-            ask_price = result['results'][0].get('ask_price', 'N/A')
-            print(f"\nDOGE Price:")
-            print(f"Buy Price: ${ask_price}")
-            print(f"Sell Price: ${bid_price}")
-        
-        return result
+            price = float(result['results'][0]['price'])
+            print(f"DOGE: ${price:.4f}")
+            return price
 
     def get_holdings(self):
         """Get DOGE holdings."""
