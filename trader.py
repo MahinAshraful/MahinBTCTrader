@@ -41,7 +41,16 @@ class DogeTrader:
             headers=self._get_headers("GET", path),
             timeout=10
         )
-        return response.json()
+        result = response.json()
+        
+        if result and 'results' in result and result['results']:
+            bid_price = result['results'][0].get('bid_price', 'N/A')
+            ask_price = result['results'][0].get('ask_price', 'N/A')
+            print(f"\nDOGE Price:")
+            print(f"Buy Price: ${ask_price}")
+            print(f"Sell Price: ${bid_price}")
+        
+        return result
 
     def get_holdings(self):
         """Get DOGE holdings."""
@@ -98,11 +107,3 @@ class DogeTrader:
                 )
                 print("Sold all DOGE")
                 return response.json()
-            
-if __name__ == "__main__":
-    trader = DogeTrader()
-
-
-
-    # sell all doge
-    # trader.sell_doge()
