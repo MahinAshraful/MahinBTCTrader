@@ -2,6 +2,7 @@ import base64
 import datetime
 import json
 import os
+import uuid
 from nacl.signing import SigningKey
 import requests
 from dotenv import load_dotenv
@@ -56,6 +57,7 @@ class DogeTrader:
         """Buy DOGE."""
         path = "/api/v1/crypto/trading/orders/"
         body = json.dumps({
+            "client_order_id": str(uuid.uuid4()),
             "symbol": self.symbol,
             "side": "buy",
             "type": "market",
@@ -71,42 +73,36 @@ class DogeTrader:
         )
         return response.json()
 
-    def sell_doge(self, quantity: float):
-        """Sell DOGE."""
-        path = "/api/v1/crypto/trading/orders/"
-        body = json.dumps({
-            "symbol": self.symbol,
-            "side": "sell",
-            "type": "market",
-            "market_order_config": {
-                "asset_quantity": str(quantity)
-            }
-        })
-        response = requests.post(
-            self.base_url + path,
-            headers=self._get_headers("POST", path, body),
-            json=json.loads(body),
-            timeout=10
-        )
-        return response.json()
+    def sell_doge(self):
+        """Sell all DOGE."""
+        holdings = self.get_holdings()
 
+        if holdings and 'results' in holdings and holdings['results']:
+            quantity = holdings['results'][0].get('quantity_available_for_trading', '0')
+            if float(quantity) > 0:
+                path = "/api/v1/crypto/trading/orders/"
+                body = json.dumps({
+                    "client_order_id": str(uuid.uuid4()),
+                    "symbol": self.symbol,
+                    "side": "sell",
+                    "type": "market",
+                    "market_order_config": {
+                        "asset_quantity": str(quantity)
+                    }
+                })
+                response = requests.post(
+                    self.base_url + path,
+                    headers=self._get_headers("POST", path, body),
+                    json=json.loads(body),
+                    timeout=10
+                )
+                print("Sold all DOGE")
+                return response.json()
+            
 if __name__ == "__main__":
     trader = DogeTrader()
-    
-    # Get current price
-    print("\nDOGE Price:")
-    print(json.dumps(trader.get_price(), indent=2))
-    
-    # Get holdings
-    print("\nDOGE Holdings:")
-    print(json.dumps(trader.get_holdings(), indent=2))
 
-    # Example buy (commented out for safety)
-    # buy_response = trader.buy_doge(1.0)  # Buy 1 DOGE
-    # print("\nBuy Response:")
-    # print(json.dumps(buy_response, indent=2))
 
-    # Example sell (commented out for safety)
-    # sell_response = trader.sell_doge(1.0)  # Sell 1 DOGE
-    # print("\nSell Response:")
-    # print(json.dumps(sell_response, indent=2))
+
+    # sell all doge
+    # trader.sell_doge()
