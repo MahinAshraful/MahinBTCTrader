@@ -58,25 +58,48 @@ class DogeTrader:
         )
         return response.json()
 
-    def buy_doge(self, quantity: float):
-        """Buy DOGE."""
-        path = "/api/v1/crypto/trading/orders/"
-        body = json.dumps({
+    def buy_doge(self, dollars: float):
+        """Buy DOGE with USD."""
+        # Get price
+        price_data = requests.get(
+            self.base_url + f"/api/v1/crypto/marketdata/best_bid_ask/?symbol={self.symbol}",
+            headers=self._get_headers("GET", f"/api/v1/crypto/marketdata/best_bid_ask/?symbol={self.symbol}"),
+            timeout=10
+        ).json()
+        
+        # Calculate quantity
+        quantity = round((dollars / float(price_data['results'][0]['price'])) * 100) / 100
+        
+        # Prepare order data
+        order_data = {
             "client_order_id": str(uuid.uuid4()),
             "symbol": self.symbol,
             "side": "buy",
             "type": "market",
             "market_order_config": {
-                "asset_quantity": str(quantity)
+                "asset_quantity": f"{quantity:.2f}"
             }
-        })
+        }
+        
+        # Place order
+        body = json.dumps(order_data)
         response = requests.post(
-            self.base_url + path,
-            headers=self._get_headers("POST", path, body),
-            json=json.loads(body),
+            self.base_url + "/api/v1/crypto/trading/orders/",
+            headers=self._get_headers("POST", "/api/v1/crypto/trading/orders/", body),
+            json=order_data,
             timeout=10
         )
-        return response.json()
+        
+        try:
+            if response.status_code == 201:
+                print(f"Bought {quantity:.2f} DOGE")
+                return response.json()
+            else:
+                print(f"Order failed: {response.text}")
+                return None
+        except Exception as e:
+            print(f"Error: {e}")
+            return None
 
     def sell_doge(self):
         """Sell all DOGE."""
