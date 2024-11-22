@@ -147,7 +147,7 @@ class BTCTrader:
                 'secret': taapi_key,
                 'exchange': 'binance',
                 'symbol': 'BTC/USDT',
-                'interval': '5m',
+                'interval': '15m',
                 'period': 7,  
                 'multiplier': 3  
             }
