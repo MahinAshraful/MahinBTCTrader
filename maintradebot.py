@@ -5,7 +5,6 @@ from datetime import datetime
 def main():
     trader = BTCTrader()
     position = False
-    waiting_for_sell = False
     
     print("Starting BTC trading bot...")
     print("Waiting for signals...")
@@ -17,20 +16,10 @@ def main():
             
             if signal is None:
                 print(f"[{current_time}] Error getting signal, waiting for next check...")
-                time.sleep(19)
-                continue
-            
-            if not position and not waiting_for_sell and signal == "BUY":
-                print(f"[{current_time}] Got BUY signal - waiting for SELL signal before first trade")
-                waiting_for_sell = True
+                time.sleep(20)
                 continue
                 
-            if waiting_for_sell and signal == "SELL":
-                print(f"[{current_time}] Got SELL signal - ready to trade on next BUY")
-                waiting_for_sell = False
-                continue
-                
-            if signal == "BUY" and not position and not waiting_for_sell:
+            if signal == "BUY" and not position:
                 print(f"[{current_time}] 💰 Executing BUY order...")
                 result = trader.buy_BTC(10)
                 if result:
@@ -47,7 +36,7 @@ def main():
                 else:
                     print(f"[{current_time}] ❌ SELL order failed")
             
-            time.sleep(19)
+            time.sleep(20)
             
         except KeyboardInterrupt:
             print("\nBot stopped by user")
@@ -57,7 +46,7 @@ def main():
             break
         except Exception as e:
             print(f"[{current_time}] Error: {e}")
-            time.sleep(19)
+            time.sleep(20)
 
 if __name__ == "__main__":
     main()
